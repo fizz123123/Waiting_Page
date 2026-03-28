@@ -1,3 +1,5 @@
+const interactivePrompt = document.getElementById('interactive-prompt');
+const commandInput = document.getElementById('command-input');
 const terminalBody = document.getElementById('terminal-body');
 const cursor = document.getElementById('cursor');
 
@@ -35,12 +37,37 @@ function typeWriter(text, charIndex, lineElement, callback) {
 function printNextLine() {
     if (currentLineIndex < logMessages.length) {
         const newLine = document.createElement('div');
-        newLine.className = 'log-line'; 
+        newLine.className = 'log-line';
         terminalBody.insertBefore(newLine, cursor);
 
         typeWriter(logMessages[currentLineIndex], 0, newLine, () => {
-            currentLineIndex++; 
-            printNextLine();    
+            currentLineIndex++;
+            printNextLine();
+        });
+    } else {
+        //Log 跑完後，解鎖輸入框
+        cursor.classList.add('hidden');
+        interactivePrompt.classList.remove('hidden');
+        terminalBody.scrollTop = terminalBody.scrollHeight;
+        commandInput.focus();
+
+        commandInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const command = commandInput.value.trim().toLowerCase();
+                if (command === 'reboot' || command === 'reload') {
+                    location.reload();
+                } else if (command === '') {
+                    return;
+                } else {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'log-line';
+                    errorMsg.style.color = '#ff5f56';
+                    errorMsg.textContent = `Command not found: ${command}. Try 'reboot'.`;
+                    terminalBody.insertBefore(errorMsg, interactivePrompt);
+                    commandInput.value = '';
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }
+            }
         });
     }
 }
