@@ -45,11 +45,20 @@ function printNextLine() {
             printNextLine();
         });
     } else {
-        //Log 跑完後，解鎖輸入框
-        cursor.classList.add('hidden');
-        interactivePrompt.classList.remove('hidden');
+        const hintMsg = document.createElement('div');
+        hintMsg.className = 'log-line';
+        hintMsg.style.color = '#ffbd2e';
+        hintMsg.textContent = "> [HINT] Type 'reboot' to restart the connection.";
+        terminalBody.insertBefore(hintMsg, cursor);
         terminalBody.scrollTop = terminalBody.scrollHeight;
-        commandInput.focus();
+
+        //延遲1秒後再解鎖輸入匡
+        setTimeout(() => {
+            cursor.classList.add('hidden');
+            interactivePrompt.classList.remove('hidden');
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+            commandInput.focus();
+        }, 1000);
 
         commandInput.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
